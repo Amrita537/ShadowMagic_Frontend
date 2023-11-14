@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <script src="js/fabric.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <title>Layered Canvas</title>
+  <style>
+    .container{
+      padding-top: 50px;
+    }
+    #canvasContainer {
+      position: relative;
+    }
+
+    canvas {
+      border: 1px solid #000;
+      cursor: crosshair;
+    }
+
+    #layerList {
+      top: 10px;
+      right: 10px;
+      width: 50%;
+    }
+
+    .layerButton {
+      display: block;
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+      background-color: #555a63;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    #fileInput{
+      display: none;
+    }
+
+    .custom-file-upload
+    {
+      display: block;
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+      background-color: #555a63;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .layerButton i {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+<div id="canvasContainer" class="container">
+  <div class="row">
+    <div class="col-sm">
+      <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+    <div class="col-sm">
+      <div id="layerList">
+      <label for="fileInput" class="custom-file-upload">
+        add layer +
+      </label>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+    </div>
+  </div>
+</div>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            const fileInput = document.getElementById("fileInput");
+            const layerList = document.getElementById("layerList");
+            const images = [];
+            const visibilityState = [];
+            let isDragging = false;
+            let startDrag = { x: 0, y: 0 };
+            let translation = { x: 0, y: 0 };
+            let scale = 1;
+
+            canvas.addEventListener("wheel", handleWheel);
+
+            fileInput.addEventListener("change", handleFileSelect);
+            canvas.addEventListener("mousedown", handleMouseDown);
+            canvas.addEventListener("mousemove", handleMouseMove);
+            canvas.addEventListener("mouseup", handleMouseUp);
+
+
+            function handleFileSelect(event) {
+              const file = event.target.files[0];
+
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                  const img = new Image();
+                  img.onload = function () {
+                    images.push(img);
+                    visibilityState.push(true);
+                    updateLayerList(file.name, images.length - 1);
+                    displayImages();
+                  };
+                  img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+              }
+            }
+
+            function updateLayerList(imageName, index) {
+              let layerButton = document.getElementById(`layerButton_${index}`);
+
+              if (!layerButton) {
+                layerButton = document.createElement("button");
+                layerButton.id = `layerButton_${index}`;
+                layerButton.className = "layerButton";
+                layerButton.innerHTML = `<i class="fa fa-eye"></i> ${imageName}`;
+                layerButton.addEventListener("click", function (event) {
+                  event.stopPropagation(); // Stop event propagation
+                  toggleLayerVisibility(index);
+                  updateLayerList(imageName, index); // Update the button with the new visibility state
+                  displayImages();
+                });
+                layerList.appendChild(layerButton);
+              }
+
+              else {
+                  // Toggle the Font Awesome icon
+                  const iconElement = layerButton.querySelector("i");
+                  if (visibilityState[index]) {
+                    iconElement.classList.remove("fa-eye-slash");
+                    iconElement.classList.add("fa-eye");
+                  } else {
+                    iconElement.classList.remove("fa-eye");
+                    iconElement.classList.add("fa-eye-slash");
+                  }
+                }
+            }
+
+            function toggleLayerVisibility(index) {
+              visibilityState[index] = !visibilityState[index];
+            }
+
+            function displayImages() {
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              ctx.save();
+              ctx.translate(translation.x, translation.y);
+              ctx.scale(scale, scale);
+              for (let i = 0; i < images.length; i++) {
+                if (visibilityState[i]) {
+                  ctx.drawImage(images[i], 0, 0, canvas.width, canvas.height);
+                }
+              }
+              ctx.restore();
+            }
+          
+            function handleMouseDown(event) {
+              isDragging = true;
+              startDrag = { x: event.clientX - translation.x, y: event.clientY - translation.y };
+            }
+
+            function handleMouseMove(event) {
+              if (isDragging) {
+                panCanvas(event.clientX, event.clientY);
+              }
+            }
+
+            function handleMouseUp() {
+              isDragging = false;
+            }
+
+            function panCanvas(mouseX, mouseY) {
+              translation.x = mouseX - startDrag.x;
+              translation.y = mouseY - startDrag.y;
+              displayImages();
+            }
+
+
+              function handleWheel(event) {
+              // Adjust the scale based on the direction of the scroll
+              const delta = event.deltaY > 0 ? 0.9 : 1.1;
+              scale *= delta;
+              displayImages();
+            }
+
+
+    });
+  </script>
+</body>
+</html>

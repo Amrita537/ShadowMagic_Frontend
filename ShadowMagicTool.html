@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="css/StyleShadowMagic.css">
+</head>
+<body>
+
+<h2>Shadow Magic</h2>
+
+<div class="tab">
+  <button class="tablinks" onclick="openTab(event, 'Scene1')" id="defaultOpen">Scene 1</button>
+  <button class="tablinks" onclick="openTab(event, 'Scene2')">Scene 2</button>
+  
+  <label for="backgroundImageInput" class="custom-file-upload">
+     Add Scene
+  </label>
+  <input type="file" id="backgroundImageInput" accept="image/*" onchange="loadBackgroundImage(event)"> 
+</div>
+
+<div id="scenes">
+    <div id="Scene1" class="tabcontent">
+        <h3>Image 1</h3>
+        <div>
+            <img src="img/0004_back_flat.png" alt="Image 1">
+        </div>
+    </div>
+
+    <div id="Scene2" class="tabcontent">
+        <h3>Image 2</h3>
+        <div>
+            <img src="img/0004_back_flat.png" alt="Image 2">
+        </div>
+    </div>
+</div>
+
+<script>
+var sceneNumber = 2;
+var backgroundImg; // Store the selected background image
+
+function AddScene() {
+    sceneNumber++;
+    var newTabLink = document.createElement("button");
+    newTabLink.className = "tablinks";
+    newTabLink.textContent = "Scene " + sceneNumber;
+    newTabLink.onclick = function (event) {
+        openTab(event, "Scene" + sceneNumber);
+    };
+
+    var tabDiv = document.querySelector(".tab");
+    var addButton = document.querySelector(".custom-file-upload"); // Find the label
+    tabDiv.insertBefore(newTabLink, addButton); // Insert the new tab link before the label
+
+    // Create a new div with class "tabcontent" for the scene
+    var newTabContent = document.createElement("div");
+    newTabContent.className = "tabcontent";
+    newTabContent.id = "Scene" + sceneNumber;
+
+    // Set content for the new tabcontent div (e.g., an image)
+    var newTabContentText = document.createElement("h3");
+    newTabContentText.textContent = "Image " + sceneNumber;
+    newTabContent.appendChild(newTabContentText);
+
+    var newImage = document.createElement("img");
+    newImage.src = backgroundImg.src; // Set the image source based on the loaded background
+    newImage.alt = "Image " + sceneNumber;
+
+    // Append the new image to the existing tab content
+    newTabContent.appendChild(newImage);
+
+    // Append the new tabcontent to the document
+    document.body.appendChild(newTabContent);
+}
+
+function loadBackgroundImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        backgroundImg = new Image();
+        backgroundImg.src = URL.createObjectURL(file);
+        backgroundImg.onload = function () {
+            backgroundImageLoaded = true;
+            AddScene(backgroundImg); // Create a new scene after loading the background image
+        };
+    }
+}
+
+function openTab(evt, SceneId) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(SceneId).style.display = "block";
+    evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+
+</body>
+</html>

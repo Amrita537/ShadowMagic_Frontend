@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Painting Tool</title>
+ <style>
+        #container {
+            display: flex;
+        }
+        #tools {
+            width: 200px;
+            padding: 10px;
+        }
+        #tools input[type="file"],
+        #tools input[type="range"],
+        #tools button{
+            display: block;
+            margin: 5px 0;
+            padding: 10px;
+            width: 100%;
+            background-color: #555a63;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #tools input[type="file"] {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="tools">
+            <input type="file" id="imageInput" accept="image/*">
+            <input type="file" id="overlayInput" accept=".png">
+            <input type="range" id="overlayOpacity" min="0" max="1" step="0.01" value="0.5">
+            <button id="eraseOverlay">Erase Overlay</button>
+            <button id="undo">Undo</button>
+            <button id="zoomIn">Zoom In</button>
+            <button id="zoomOut">Zoom Out</button>
+            <button id="saveImage">Save Image</button>
+            <button id="eyedropperButton">Eyedropper</button>
+
+            <p id="pickedColor">Picked Color: </p>
+        </div>
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <div id="layerList"></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const imageInput = document.getElementById('imageInput');
+        const overlayInput = document.getElementById('overlayInput');
+        const overlayOpacity = document.getElementById('overlayOpacity');
+        const eraseOverlay = document.getElementById('eraseOverlay');
+        const undo = document.getElementById('undo');
+        const zoomIn = document.getElementById('zoomIn');
+        const zoomOut = document.getElementById('zoomOut');
+        const saveImage = document.getElementById('saveImage');
+        let backgroundImage;
+        let overlayImage;
+        let isDrawing = false;
+        let zoomFactor = 1;
+
+        // Function to set the canvas size
+        function setCanvasSize(width, height) {
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        // Function to draw images on the canvas
+        function drawImages() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+            if (backgroundImage) {
+                // ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(backgroundImage, 0, 0, backgroundImage.width * zoomFactor, backgroundImage.height * zoomFactor);
+            }
+            if (overlayImage) {
+                ctx.globalAlpha = overlayOpacity.value;
+                ctx.drawImage(overlayImage, 0, 0, overlayImage.width * zoomFactor, overlayImage.height * zoomFactor);
+                ctx.globalAlpha = 1; // Reset opacity
+            }
+        }
+
+        // Load the background image
+        imageInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    backgroundImage = new Image();
+                    backgroundImage.onload = function () {
+                        const aspectRatio = backgroundImage.width / backgroundImage.height;
+                        const maxWidth = 500;
+                        const maxHeight = 500;
+
+                        if (backgroundImage.width > maxWidth || backgroundImage.height > maxHeight) {
+                            if (aspectRatio > 1) {
+                                backgroundImage.width = maxWidth;
+                                backgroundImage.height = maxWidth / aspectRatio;
+                            } else {
+                                backgroundImage.width = maxHeight * aspectRatio;
+                                backgroundImage.height = maxHeight;
+                            }
+
+                        } else {
+                            setCanvasSize(backgroundImage.width, backgroundImage.height);
+                        }
+
+                        drawImages();
+                    };
+                    backgroundImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Load the overlay PNG
+        overlayInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    overlayImage = new Image();
+                    overlayImage.onload = function () {
+                        const aspectRatio = overlayImage.width / overlayImage.height;
+                        const maxWidth = 500;
+                        const maxHeight = 500;
+
+                        if (overlayImage.width > maxWidth || overlayImage.height > maxHeight) {
+                            if (aspectRatio > 1) {
+                                overlayImage.width = maxWidth;
+                                overlayImage.height = maxWidth / aspectRatio;
+                            } else {
+                                overlayImage.width = maxHeight * aspectRatio;
+                                overlayImage.height = maxHeight;
+                            }
+                        }
+
+                        drawImages();
+                    };
+                    overlayImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Erase overlay
+        eraseOverlay.addEventListener('click', function () {
+            overlayImage = null;
+            drawImages();
+        });
+
+        // Undo action (clear the canvas)
+        undo.addEventListener('click', function () {
+            drawImages(); // Redraw the images
+        });
+
+        // Zoom in
+        zoomIn.addEventListener('click', function () {
+            if (zoomFactor < 3) {
+                zoomFactor += 0.1;
+                drawImages();
+            }
+        });
+
+        // Zoom out
+        zoomOut.addEventListener('click', function () {
+            if (zoomFactor > 0.2) {
+                zoomFactor -= 0.1;
+                drawImages();
+            }
+        });
+
+        // Save the canvas as an image
+        saveImage.addEventListener('click', function () {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL();
+            link.download = 'canvas_image.png';
+            link.click();
+        });
+
+
+        // Eyedropper tool
+        canvas.addEventListener('click', function (e) {
+            const x = e.clientX - canvas.getBoundingClientRect().left;
+            const y = e.clientY - canvas.getBoundingClientRect().top;
+            const pixel = ctx.getImageData(x, y, 1, 1).data;
+            const color = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+            colorBox.style.backgroundColor = color;
+        });
+
+        
+        // Update overlay opacity in real-time
+        overlayOpacity.addEventListener('input', function () {
+            drawImages();
+        });
+
+        // Drawing functionality (e.g., you can add more tools here)
+        canvas.addEventListener('mousedown', () => isDrawing = true);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'black';
+
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+            ctx.lineTo(e.clientX - canvas.getBoundingClientRect().left, e.clientY - canvas.getBoundingClientRect().top);
+            ctx.stroke();
+        }
+
+
+
+    let eyedropperButton = document.querySelector("#eyedropperButton");
+    let pickedColorParagraph = document.querySelector("#pickedColor");
+    function setup() {
+      if (window.EyeDropper === undefined) {
+        console.log("Unsupported!");
+        return;
+      } else {
+        eyedropperButton.addEventListener("click", pickColor, false);
+      }
+    }
+    setup();
+
+    async function pickColor(event) {
+      let eyeDropper = new EyeDropper();
+
+      try {
+        let pickedColor = await eyeDropper.open();
+        pickedColorParagraph.textContent = "Picked Color: " + pickedColor.sRGBHex;
+        console.log(pickedColor.sRGBHex);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    </script>
+</body>
+</html>
+

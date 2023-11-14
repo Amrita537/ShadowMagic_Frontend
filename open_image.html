@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Eel Demo</title>
+        <script type='text/javascript' src='/eel.js'></script>
+        <style>
+            img {
+                max-width: 100%;
+                max-height: 300px;
+            }
+        </style>
+        <script type='text/javascript'>
+        
+        async function selectImage() {
+            let fileInput = document.getElementById('file-input');
+            let file_div = document.getElementById('file-name');
+            let image_div = document.getElementById('image-container');
+
+            // Get the selected file
+            let selectedFile = fileInput.files[0];
+
+            if (selectedFile) {
+                // Display the name of the selected file
+                file_div.innerHTML = selectedFile.name;
+
+                // Check if the selected file is an image
+                if (selectedFile.type.startsWith('image/')) {
+                    // Create a URL for the selected image and display it
+                    const imageUrl = URL.createObjectURL(selectedFile);
+                    image_div.innerHTML = `<img src="${imageUrl}" alt="Selected Image">`;
+                } else {
+                    // Handle the case when the selected file is not an image
+                    image_div.innerHTML = 'Selected file is not an image.';
+                }
+            } else {
+                file_div.innerHTML = 'No file selected';
+                image_div.innerHTML = '';
+            }
+        }
+
+        </script>
+    </head>
+    
+    <body>
+      <input type="file" id="file-input" accept="image/*" style="display: none;" onchange="selectImage()">
+      <button onclick="document.getElementById('file-input').click()">Select Image</button>
+      <div id='file-name'>---</div>
+      <div id='image-container'></div>
+    </body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Overlay Images</title>
+    <style>
+        .container {
+            position: relative;
+        }
+
+        .background-image {
+            width: 400px; /* Set the width and height of the background image */
+            height: 300px;
+        }
+
+        .overlay-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 400px; /* Set the width and height of the overlay image */
+            height: 300px;
+            z-index: 1; /* Ensure the overlay image is on top of the background image */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img class="background-image" src="img/0004_back_flat.png" alt="Background Image">
+        <div id="overlay-container"></div>
+    </div>
+    <button onclick="addLine()">Add Line</button>
+    <button onclick="addShadow('left')">Left Shadow</button>
+    <button onclick="addShadow('right')">Right Shadow</button>
+    <button onclick="addShadow('top')">Top Shadow</button>
+    <button onclick="addShadow('bottom')">Back Shadow</button>
+
+    <div>
+        <p> Opacity: </p>
+        <input type="range" id="opacityRange" min="0" max="1" step="0.1" value="1" onchange="changeOpacity(this.value)">
+    </div>
+
+    <script>
+        let overlayContainer = document.getElementById('overlay-container');
+
+        function addLine() {
+            let lineImage = document.createElement('img');
+            lineImage.src = 'img/0004_back_line.png'; // Replace with the path to your line image
+            lineImage.className = 'overlay-image';
+            overlayContainer.appendChild(lineImage);
+        }
+
+        let currentShadow = null;
+
+        function addShadow(direction) {
+            // Define the paths for the shadow images based on direction
+            const shadowPaths = {
+                left: 'img/0004_left_shadow.png',
+                right: 'img/0004_right_shadow.png',
+                top: 'img/0004_top_shadow.png',
+                bottom: 'img/0004_back_shadow.png'
+            };
+
+            // Remove the current shadow if it exists
+            if (currentShadow) {
+                overlayContainer.removeChild(currentShadow);
+            }
+
+            // Create and append the new shadow image
+            let shadowImage = document.createElement('img');
+            shadowImage.src = shadowPaths[direction];
+            shadowImage.className = 'overlay-image';
+            overlayContainer.appendChild(shadowImage);
+
+            // Update the currentShadow reference
+            currentShadow = shadowImage;
+
+            // Set the initial opacity from the range slider value
+            changeOpacity(document.getElementById('opacityRange').value);
+        }
+
+        function changeOpacity(opacity) {
+            if (currentShadow) {
+                currentShadow.style.opacity = opacity;
+            }
+        }
+    </script>
+</body>
+</html>

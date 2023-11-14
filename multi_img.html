@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Eel Demo</title>
+        <script type='text/javascript' src='/eel.js'></script>
+        <style>
+            img {
+                max-width: 100%;
+                max-height: 300px;
+                margin: 10px 0;
+            }
+        </style>
+        <script type='text/javascript'>
+        
+        async function selectImages() {
+            let fileInput = document.getElementById('file-input');
+            let file_div = document.getElementById('file-name');
+            let image_div = document.getElementById('image-container');
+
+            // Get the selected files
+            let selectedFiles = fileInput.files;
+
+            if (selectedFiles.length > 0) {
+                file_div.innerHTML = 'Selected files:';
+
+                // Loop through selected files
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    // Check if the selected file is an image
+                    if (selectedFiles[i].type.startsWith('image/')) {
+                        // Create a URL for the selected image and display it
+                        const imageUrl = URL.createObjectURL(selectedFiles[i]);
+                        const img = document.createElement('img');
+                        img.src = imageUrl;
+                        img.alt = 'Selected Image';
+                        image_div.appendChild(img);
+                    } else {
+                        // Skip non-image files
+                        continue;
+                    }
+                }
+            } else {
+                file_div.innerHTML = 'No files selected';
+                image_div.innerHTML = '';
+            }
+        }
+
+        </script>
+    </head>
+    
+    <body>
+      <input type="file" id="file-input" accept="image/*" multiple style="display: none;" onchange="selectImages()">
+      <button onclick="document.getElementById('file-input').click()">Select Images</button>
+      <div id='file-name'>---</div>
+      <div id='image-container'></div>
+    </body>
+</html>

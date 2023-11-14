@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="css/multi_tab.css">
+</head>
+<body>
+
+<h2>Vertical Tabs</h2>
+<p>Click on the buttons inside the tabbed menu:</p>
+
+<div class="tab">
+  <button class="tablinks" onclick="openCity(event, 'Scene 1')" id="defaultOpen">Scene 1</button>
+  <button class="tablinks" onclick="openCity(event, 'Scene 2')">Scene 2</button>
+  <button class="tablinks" onclick="openCity(event, 'Scene 3')">Scene 3</button>
+</div>
+
+<div id="Scene 1" class="tabcontent">
+    <h3>Image 1</h3>
+    <div>
+        <img src="img/0004_back_flat.png" alt="Image 1">
+    </div>
+</div>
+
+<div id="Scene 2" class="tabcontent">
+    <h3>Image 2</h3>
+    <div>
+        <img src="img/0088_back_flat.png" alt="Image 2">
+    </div>
+</div>
+
+<div id="Scene 3" class="tabcontent">
+    <h3>Image 3</h3>
+    <div>
+        <img src="img/0080_back_flat.png" alt="Image 3">
+    </div>
+</div>
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
+   
+</body>
+</html>
+
+
+

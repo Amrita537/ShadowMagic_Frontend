@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Drawing</title>
+  <style>
+    #canvasContainer {
+      position: relative;
+    }
+
+    canvas {
+      border: 1px solid #000;
+      cursor: crosshair;
+    }
+
+    #layerList {
+      top: 10px;
+      right: 10px;
+      width: 50%;
+    }
+
+    .layerButton {
+      display: block;
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+      background-color: #555a63;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    #fileInput{
+      display: none;
+    }
+
+    .custom-file-upload
+    {
+      display: block;
+      margin: 5px 0;
+      padding: 10px;
+      width: 100%;
+      background-color: #555a63;
+      color: white;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .layerButton i {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+<div id="canvasContainer" class="container">
+  <div class="row">
+    <div class="col-sm">
+      <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
+    <div class="col-lg">
+      <div id="layerList">
+        <label for="fileInput" class="custom-file-upload">
+          add layer +
+        </label>
+        <input type="file" id="fileInput" accept="image/*">
+      </div>
+      <label for="colorPicker">Select Color:</label>
+      <input type="color" id="colorPicker" value="#000000">
+      <br>
+      <label for="sizeRange">Pencil Size:</label>
+      <input type="range" id="sizeRange" min="1" max="20" value="5">
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const fileInput = document.getElementById("fileInput");
+    const colorPicker = document.getElementById("colorPicker");
+    const sizeRange = document.getElementById("sizeRange");
+    let isDrawing = false;
+
+    canvas.addEventListener("mousedown", startDrawing);
+    canvas.addEventListener("mousemove", draw);
+    canvas.addEventListener("mouseup", stopDrawing);
+    canvas.addEventListener("mouseout", stopDrawing);
+
+    function startDrawing(e) {
+      isDrawing = true;
+      draw(e);
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+
+      const x = e.clientX - canvas.getBoundingClientRect().left;
+      const y = e.clientY - canvas.getBoundingClientRect().top;
+
+      ctx.beginPath();
+      ctx.arc(x, y, sizeRange.value, 0, 2 * Math.PI);
+      ctx.fillStyle = colorPicker.value;
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+  });
+</script>
+</body>
+</html>
+

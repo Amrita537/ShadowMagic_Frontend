@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Overlay on Canvas</title>
+</head>
+<body>
+    <input type="file" id="imageInput" accept="image/*">
+    <input type="file" id="overlayInput" accept=".png">
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let backgroundImage;
+        let overlayImage;
+
+        // Load the background image
+        document.getElementById('imageInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    backgroundImage = new Image();
+                    backgroundImage.onload = function () {
+                        canvas.width = backgroundImage.width;
+                        canvas.height = backgroundImage.height;
+                        ctx.drawImage(backgroundImage, 0, 0);
+                    };
+                    backgroundImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Load the overlay PNG
+        document.getElementById('overlayInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    overlayImage = new Image();
+                    overlayImage.onload = function () {
+                        drawImages();
+                    };
+                    overlayImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Draw the images on the canvas
+        function drawImages() {
+            if (backgroundImage && overlayImage) {
+                canvas.width = backgroundImage.width;
+                canvas.height = backgroundImage.height;
+                ctx.drawImage(backgroundImage, 0, 0);
+                ctx.drawImage(overlayImage, 0, 0, overlayImage.width, overlayImage.height);
+            }
+        }
+    </script>
+</body>
+</html>
