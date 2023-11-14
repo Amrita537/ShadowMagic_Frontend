@@ -1,0 +1,28 @@
+/* Add some basic styling to the buttons */
+.button {
+    display: block;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #0074D9;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width:30%;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+/* Style the list of buttons */
+.button-list {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+}
+
+.button-list li {
+    margin: 10px;
+}
